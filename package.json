@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "description": "Play backgammon in your browser",
-  "main": "",
+  "main": "index.js",
   "scripts": {
     "clean": "rimraf dist/*",
     "copy": "copyfiles -f ./src/index.html ./src/favicon.ico ./dist",
@@ -19,7 +19,10 @@
     "test": "karma start",
     "test:watch": "karma start --autoWatch=true --singleRun=false"
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rabidaudio/backgammon.git"
+  },
   "keywords": [],
   "author": "Charles Julian Knight, charles@rabidaudio.com",
   "devDependencies": {
@@ -67,5 +70,13 @@
     "normalize.css": "^4.0.0",
     "react": "^15.0.0",
     "react-dom": "^15.0.0"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rabidaudio/backgammon/issues"
+  },
+  "homepage": "https://github.com/rabidaudio/backgammon#readme"
 }
