@@ -1,2 +1,2 @@
-require('babel/register');
-require('src/lib/console_player.js');
+require('coffee-script/register');
+module.exports = require('./lib');

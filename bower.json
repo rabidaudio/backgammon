@@ -1,0 +1,20 @@
+{
+  "name": "backgammon",
+  "description": "An implementation of the backgammon rules in javascript",
+  "main": "build/backgammon.js",
+  "authors": [
+    "Charles Julian Knight"
+  ],
+  "license": "MIT",
+  "moduleType": [
+    "amd"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "index.js"
+  ]
+}
