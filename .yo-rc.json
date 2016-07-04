@@ -1,8 +1,0 @@
-{
-  "generator-react-webpack": {
-    "appName": "backgammon",
-    "style": "scss",
-    "postcss": false,
-    "generatedWithVersion": 3
-  }
-}
