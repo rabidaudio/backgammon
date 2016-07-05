@@ -1,6 +1,8 @@
 teams = require './teams'
 printer = require './game_printer'
 
+# require './privatizer'
+
 rollDice = -> Math.floor(Math.random()*6) + 1
 
 # as much as I don't like mixing JS functional with coffee list stuff, this is the most concise way
@@ -13,7 +15,7 @@ class Point
 
   length: -> @array.length
 
-  team: -> @array[0] if @hasCheckers()
+  teamName: -> @array[0] if @hasCheckers()
 
   hasCheckers: -> @length() > 0
 
@@ -21,7 +23,7 @@ class Point
 
   pop: -> @array.pop()
 
-  push: (team) -> @array.push team
+  push: (teamName) -> @array.push teamName
 
   toArray: -> [].concat @array
 
@@ -42,15 +44,15 @@ class Move
     src = game.getPoint @startPoint
     dest = game.getPoint @destPoint
     isBarred = game.isBarred @team
-    otherTeamHome = game.otherTeamHome @team
+    otherTeamHome = @team.otherTeam.homePoint
     goingHome = @destPoint is @team.homePoint
     isShort = Math.abs(@team.homePoint - @startPoint) < @amount
 
     if isBarred and @startPoint isnt otherTeamHome
       return 'Illegal move: Hit checkers must re-enter the board first'
-    if not isBarred and src.team() isnt @team.name
+    if not isBarred and src.teamName() isnt @team.name
       return "Illegal move: You don't have checkers there"
-    if dest.team() is @team.otherTeam and not dest.isBlot()
+    if dest.teamName() is @team.otherTeam.name and not dest.isBlot()
       return "Illegal move: Can't move to stack occupied by more than one enemy checker"
     if goingHome and not game.canBearOff(@team)
       return "Illegal move: Can't bear off until all pieces are in the last quadrant"
@@ -85,6 +87,7 @@ class Game
     @bars = {}
     @bars[name] = new Point for name, team of teams
     @rolls = []
+    # return @.protect()
 
   getPoint: (n) -> @board[n]
 
@@ -92,7 +95,7 @@ class Game
     throw 'Must move if possible to do so' if @rolls.length > 0 and @legalMoves().length > 0
     throw 'Game is already over' if @winner()?
 
-    if @firstTurn then @firstTurn = false else @turn = teams[@turn.otherTeam]
+    if @firstTurn then @firstTurn = false else @turn = @turn.otherTeam
     a = rollDice()
     b = rollDice()
     if a is b
@@ -108,11 +111,11 @@ class Game
     src = @getPoint move.startPoint
     dest = @getPoint move.destPoint
     teamBar = @bars[move.team.name]
-    otherTeamBar = @bars[move.team.otherTeam]
-    otherTeamHome = @getPoint @otherTeamHome(move.team)
+    otherTeamBar = @bars[move.team.otherTeam.name]
+    otherTeamHome = @getPoint move.team.otherTeam.homePoint
 
     @moveChecker teamBar, otherTeamHome if @isBarred move.team
-    @moveChecker dest, otherTeamBar if dest.team() is move.team.otherTeam
+    @moveChecker dest, otherTeamBar if dest.teamName() is move.team.otherTeam.name
     @moveChecker src, dest
     @rolls.splice @rolls.indexOf(move.amount), 1
 
@@ -124,13 +127,13 @@ class Game
 
   isBarred: (team) -> @bars[team.name].hasCheckers()
 
-  otherTeamHome: (team) -> teams[team.otherTeam].homePoint
+  # otherTeamHome: (team) -> teams[team.otherTeam].homePoint
 
   quadrant: (point) -> (point - 1) // 6
 
   canBearOff: (team) -> @quadrant(@furthestBackPointWithCheckers(team)) is team.homeQuadrant
 
-  furthestBackPointWithCheckers: (team) -> (i for i in [@otherTeamHome(team)..team.homePoint] when @getPoint(i).team() is team.name)[0]
+  furthestBackPointWithCheckers: (team) -> (i for i in [team.otherTeam.homePoint..team.homePoint] when @getPoint(i).teamName() is team.name)[0]
 
   winner: -> (team for name, team of teams when @furthestBackPointWithCheckers(team) is team.homePoint and !@isBarred(team))[0]
 

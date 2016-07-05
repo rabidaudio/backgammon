@@ -10,9 +10,9 @@ describe 'Game', ->
 
     game = new Game Game.RED
 
-    expect(game.turn.name).to.equal Game.RED.name
+    expect(game.getWhoseTurn().name).to.equal Game.RED.name
 
-    expect(game.rolls).to.be.empty
+    expect(game.rolls).to.be.emptygetWhoseTurn
 
     expect(game.winner()).to.not.exist
 
@@ -20,7 +20,7 @@ describe 'Game', ->
 
     expect(game.rolls).to.have.length.at.least 2
 
-    expect(game.turn.name).to.equal Game.RED.name
+    expect(game.getWhoseTurn().name).to.equal Game.RED.name
 
     expect(game.legalMoves()).to.be.have.length.at.least 1
 
@@ -35,7 +35,7 @@ describe 'Game', ->
     game.move(game.legalMoves()[0])
 
     expect(game.getPoint(4).length()).to.equal 1
-    expect(game.getPoint(4).team()).to.equal Game.RED.name
+    expect(game.getPoint(4).teamName()).to.equal Game.RED.name
     expect(game.getPoint(3).length()).to.equal 0
     expect(game.bars[Game.BLACK.name].length()).to.equal 1
     expect(game.isBarred(Game.BLACK)).to.be.true
