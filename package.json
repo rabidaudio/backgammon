@@ -12,7 +12,7 @@
     "coffee-script": "^1.9.1"
   },
   "devDependencies": {
-    "chai": "^2.1.2",
+    "chai": "^3.5.0",
     "chai-things": "^0.2.0",
     "coffeeify": "^1.0.0",
     "grunt": "^0.4.5",

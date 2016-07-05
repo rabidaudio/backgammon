@@ -14,7 +14,7 @@ describe 'Game', ->
 
     expect(game.rolls).to.be.empty
 
-    expect(game.winner()).to.be.undefined
+    expect(game.winner()).to.not.exist
 
     game.roll()
 
@@ -26,8 +26,6 @@ describe 'Game', ->
 
   it 'should allow the taking of pieces', ->
     game = new Game Game.RED, {3: [Game.RED.name, 1], 4: [Game.BLACK.name, 1]}
-    console.log(game)
-    game.print()
     game.roll()
     game.rolls = [1]
 
@@ -41,3 +39,28 @@ describe 'Game', ->
     expect(game.getPoint(3).length()).to.equal 0
     expect(game.bars[Game.BLACK.name].length()).to.equal 1
     expect(game.isBarred(Game.BLACK)).to.be.true
+
+    game.roll()
+    game.rolls = [1]
+
+    expect(game.legalMoves().length).to.equal 1
+    expect(game.legalMoves()[0].startPoint).to.equal 25
+    expect(game.legalMoves()[0].destPoint).to.equal 24
+
+  it 'should only allow legal moves', ->
+    game = new Game Game.RED
+
+    game.roll()
+
+    game.rolls = [6]
+
+    expect(game.legalMoves().length).to.equal 3
+
+    for move in game.legalMoves()
+      expect(move.team.name).to.equal Game.RED.name
+      expect(move.amount).to.equal 6
+      expect(move.startPoint).to.be.oneOf [1, 12, 17]
+      switch move.startPoint
+        when 1 then expect(move.destPoint).to.equal 7
+        when 12 then expect(move.destPoint).to.equal 18
+        when 17 then expect(move.destPoint).to.equal 23

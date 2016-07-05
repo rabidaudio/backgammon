@@ -3,7 +3,7 @@ printer = require './game_printer'
 
 rollDice = -> Math.floor(Math.random()*6) + 1
 
-# as much as I don't like mixing JS functional with coffee functional, this is the most concise way
+# as much as I don't like mixing JS functional with coffee list stuff, this is the most concise way
 flatten = (arr) -> arr.reduce ((memo, b) -> memo.concat b), []
 unique = (arr) -> arr.filter (e,i,a) -> a.indexOf(e) is i
 
@@ -23,13 +23,14 @@ class Point
 
   push: (team) -> @array.push team
 
-  copy: -> new Point @team(), @length()
+  toArray: -> [].concat @array
 
   toString: -> @array.toString()
 
 class Move
 
-  constructor: (@team, @startPoint, @amount) ->
+  constructor: (opts) ->
+    {@team, @startPoint, @amount} = opts
     @destPoint = @startPoint + @amount*@team.direction
     @destPoint = @team.homePoint if @team.direction*(@destPoint - @team.homePoint) > 0
 
@@ -56,12 +57,14 @@ class Move
     if goingHome and isShort and game.furthestBackPointWithCheckers(@team) isnt @startPoint
       return "Illegal move: Can only use overrolls to bear off if there are no checkers on higher points"
 
-  copy: -> new Move @team, @startPoint, @amount #TODO with access to prototype you could change checkIllegal
+  toHash: -> {team: @team, startPoint: @startPoint, destPoint: @destPoint, amount: @amount}
 
   toString: -> "#{@team.name} from #{@startPoint} to #{@destPoint} (#{@amount})"
 
 
 class Game
+
+  public: ['roll', 'move', 'legalMoves', 'isBarred', 'canBearOff', 'winner', 'print', 'getBoard', 'getBars', 'getWhoseTurn']
 
   constructor: (startingTeam, setup=null) ->
     @turn = startingTeam
@@ -98,7 +101,8 @@ class Game
       @rolls = [a, b]
 
 
-  move: (move) ->
+  move: (moveInfo) ->
+    move = new Move moveInfo
     throw illegal if (illegal = move.checkIllegal(@))?
 
     src = @getPoint move.startPoint
@@ -112,9 +116,9 @@ class Game
     @moveChecker src, dest
     @rolls.splice @rolls.indexOf(move.amount), 1
 
-  allPossibleMoves: -> flatten (new Move(@turn, i, roll) for i in [0..25] for roll in unique @rolls)
+  allPossibleMoves: -> flatten (new Move({team: @turn, startPoint: i, amount: roll}) for i in [0..25] for roll in unique @rolls)
 
-  legalMoves: -> move for move in @allPossibleMoves() when not move.checkIllegal(@)?
+  legalMoves: -> move.toHash() for move in @allPossibleMoves() when not move.checkIllegal(@)?
 
   moveChecker: (fromPoint, toPoint) -> toPoint.push fromPoint.pop()
 
@@ -130,13 +134,17 @@ class Game
 
   winner: -> (team for name, team of teams when @furthestBackPointWithCheckers(team) is team.homePoint and !@isBarred(team))[0]
 
+  getBoard: -> @getPoint(i).toArray() for i in [0..25]
+
+  getBars: -> { red: @bars.red.toArray(), black: @bars.red.toArray() }
+
+  getWhoseTurn: -> @turn
+
   print: -> console.log printer @
 
 
 Game.RED = teams.red
 Game.BLACK = teams.black
 Game.rollDice = rollDice
-Game.Point = Point
-Game.Move = Move
 
 module.exports = Game
